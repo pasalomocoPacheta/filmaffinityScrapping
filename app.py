@@ -2,9 +2,7 @@ import os
 import re
 from flask import Flask, request, jsonify
 from bs4 import BeautifulSoup
-import requests
-import cloudscraper
-
+from curl_cffi import requests as cffi_requests
 app = Flask(__name__)
 
 URL_SEARCH_FILMAFFINITY = "https://www.filmaffinity.com/es/search.php?stype=title&stext="
@@ -30,8 +28,7 @@ def search():
         return jsonify(msg), STATUS_CODE_ERROR
 
     url = f'{URL_SEARCH_FILMAFFINITY}{query}'
-    scraper = cloudscraper.create_scraper()
-    res = scraper.get(url, timeout=15)
+    res = cffi_requests.get(url, timeout=15, impersonate="chrome")
 
     elements = []
     response = []
@@ -101,8 +98,7 @@ def filmById():
 
     url = f'{URL_FILMAFFINITY_FILM_PAGE}{id}.html'
     try:
-        scraper = cloudscraper.create_scraper()
-        res = scraper.get(url, timeout=15)
+        res = cffi_requests.get(url, timeout=15, impersonate="chrome")
     except Exception as e:
         return jsonify({"error": str(e)}), STATUS_CODE_ERROR
 
